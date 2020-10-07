@@ -6,28 +6,27 @@ import {
   EyeTwoTone,
   PoweroffOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import axios from "axios";
 import secureStorage from "../utils/SecureStorage";
 
-const Login = () => {
+const Register = () => {
   const { cardLogin, container, buttonLogin } = styles;
 
+  const [name, setName] = useState();
   const [emailAddress, setEmail] = useState();
   const [passwordUser, setPassword] = useState();
   const [loading, setLoading] = useState(false);
 
-  React.useEffect(() => {
-    let token = secureStorage.getItem("credentials");
-    console.log(token);
-  }, []);
+  const history = useHistory();
 
-  const getLogin = () => {
+  const registerUser = () => {
     setLoading(true);
     axios
       .post(
-        "http://localhost:3000/auth/login",
+        "http://localhost:3000/auth/register",
         {
+          name: name,
           email: emailAddress,
           password: passwordUser,
         },
@@ -35,7 +34,8 @@ const Login = () => {
       )
       .then((res) => {
         setLoading(false);
-        console.log(res);
+        message.success("Registration success!");
+        history.push("/");
       })
       .catch((err) => {
         setLoading(false);
@@ -47,10 +47,17 @@ const Login = () => {
     <div style={container}>
       <Card style={cardLogin}>
         <h1 style={{ fontWeight: "bold" }}>TODO LIST APP</h1>
-        <h2 style={{ color: "gray" }}>LOGIN</h2>
+        <h2 style={{ color: "gray" }}>REGISTER</h2>
         <p style={{ marginBottom: "20px" }}>
-          Please login before using this application
+          Please input your data for registration
         </p>
+        <Input
+          style={{ marginBottom: "30px" }}
+          size="large"
+          placeholder="Name"
+          prefix={<UserOutlined />}
+          onChange={(name) => setName(name.target.value)}
+        />
         <Input
           style={{ marginBottom: "30px" }}
           size="large"
@@ -70,13 +77,10 @@ const Login = () => {
           style={buttonLogin}
           type="primary"
           loading={loading}
-          onClick={getLogin}
+          onClick={registerUser}
         >
-          Login
+          Submit
         </Button>
-        <Link style={{ color: "black" }} to={"/register"}>
-          Register
-        </Link>
       </Card>
     </div>
   );
@@ -90,7 +94,7 @@ const styles = {
   },
   cardLogin: {
     width: 500,
-    height: 400,
+    height: 450,
     marginLeft: "auto",
     marginRight: "auto",
     top: "20vh",
@@ -103,4 +107,4 @@ const styles = {
   },
 };
 
-export default Login;
+export default Register;

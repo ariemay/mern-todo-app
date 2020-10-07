@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import createRouter from "./router/index";
-import Login from "./views/Login";
+import "antd/dist/antd.css";
 import * as serviceWorker from "./serviceWorker";
 
 const dotenv = require("dotenv");

@@ -1,5 +1,8 @@
 const dotenv = require("dotenv");
 dotenv.config();
+
+const cors = require("cors");
+
 const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
@@ -9,6 +12,7 @@ const PORT = process.env.PORT || 3000;
 const db = require("./models/");
 
 app.use(bodyParser.json());
+app.use(cors());
 
 function success(res, payload) {
   return res.status(200).json(payload);
@@ -21,7 +25,7 @@ app.post("/auth/login", async (req, res, next) => {
       password: req.body.password,
     }).then((user) => {
       if (!user) {
-        res.status(404).send({
+        res.status(400).send({
           message: "Failed email/password",
         });
       } else {
@@ -44,7 +48,7 @@ app.post("/auth/register", async (req, res, next) => {
     const users = await db.Users.create(req.body);
     return success(res, users);
   } catch (err) {
-    next({ status: 400, message: "failed to create todo" });
+    next({ status: 400, message: "Failed to register, please try again" });
   }
 });
 
