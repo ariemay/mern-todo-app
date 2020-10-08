@@ -33,7 +33,8 @@ app.post("/auth/login", async (req, res, next) => {
           { id: user._id, name: user.name, email: user.email },
           process.env.SECRET
         );
-        res.setHeader("Authorization", "Bearer " + token);
+        res.header("Access-Control-Expose-Headers", "Authorization");
+        res.header("Authorization", token);
         return user;
       }
     });
@@ -53,7 +54,7 @@ app.post("/auth/register", async (req, res, next) => {
 });
 
 app.get("/todo", async (req, res, next) => {
-  var decoded = jwttoken.verify(token, process.env.SECRET);
+  var decoded = jwttoken.verify(req.headers.authorization, process.env.SECRET);
   if (decoded) {
     try {
       const todos = await db.Todo.find({});
@@ -64,52 +65,36 @@ app.get("/todo", async (req, res, next) => {
   }
 });
 
-app.get("/todo/user", async (req, res, next) => {
-  var decoded = jwttoken.verify(token, process.env.SECRET);
-  if (decoded) {
-    try {
-      const todos = new Promise((resolve, reject) => {
-        if (req.body.filter === "all" && req.body.q === "") {
-          db.Todo.find({}).then((todo) => {
+app.post("/todo/user", async (req, res, next) => {
+  try {
+    const todos = new Promise((resolve, reject) => {
+      if (req.body.filter === "All") {
+        db.Todo.find({}).then((todo) => {
+          resolve(todo);
+        });
+      } else {
+        db.Todo.findOne({ filter: req.body.filter }).then((todo) => {
+          if (todo) {
+            console.log(todo);
             resolve(todo);
-          });
-        } else if (req.body.filter === "all" && req.body.q !== "") {
-          db.Todo.findOne({
-            q: req.body.q,
-          }).then((todo) => {
-            if (todo) {
-              console.log(todo);
-              resolve(todo);
-            } else {
-              reject("No todo available on list");
-            }
-          });
-        } else {
-          db.Todo.findOne({
-            $or: [{ q: req.body.q }, { filter: req.body.filter }],
-          }).then((todo) => {
-            if (todo) {
-              console.log(todo);
-              resolve(todo);
-            } else {
-              reject("No todo available on list");
-            }
-          });
-        }
-      });
-      todos
-        .then((todo) => {
-          return success(res, todo);
-        })
-        .catch((err) => next({ status: 400, message: err }));
-    } catch (err) {
-      next({ status: 400, message: "failed to get todos" });
-    }
+          } else {
+            reject("No todo available on list");
+          }
+        });
+      }
+    });
+    todos
+      .then((todo) => {
+        return success(res, todo);
+      })
+      .catch((err) => next({ status: 400, message: err }));
+  } catch (err) {
+    next({ status: 400, message: "failed to get todos" });
   }
 });
 
 app.post("/todo", async (req, res, next) => {
-  var decoded = jwttoken.verify(token, process.env.SECRET);
+  var decoded = jwttoken.verify(req.headers.authorization, process.env.SECRET);
   if (decoded) {
     try {
       const todo = await db.Todo.create(req.body);
@@ -121,7 +106,7 @@ app.post("/todo", async (req, res, next) => {
 });
 
 app.put("/todo/:id", async (req, res, next) => {
-  var decoded = jwttoken.verify(token, process.env.SECRET);
+  var decoded = jwttoken.verify(req.headers.authorization, process.env.SECRET);
   if (decoded) {
     try {
       const todo = await db.Todo.findByIdAndUpdate(req.params.id, req.body, {
@@ -134,7 +119,7 @@ app.put("/todo/:id", async (req, res, next) => {
   }
 });
 app.delete("/todo/:id", async (req, res, next) => {
-  var decoded = jwttoken.verify(token, process.env.SECRET);
+  var decoded = jwttoken.verify(req.headers.authorization, process.env.SECRET);
   if (decoded) {
     try {
       await db.Todo.findByIdAndRemove(req.params.id);

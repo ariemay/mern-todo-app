@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost/todo", {
+mongoose.connect("mongodb://localhost/dashboard", {
   keepAlive: true,
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -8,5 +8,8 @@ mongoose.connect("mongodb://localhost/todo", {
 mongoose.set("debug", true);
 mongoose.Promise = Promise;
 
-module.exports.Todo = require("./todo");
-module.exports.Users = require("./auth");
+const Todo = require("./todo");
+const Users = require("./auth");
+
+module.exports.Todo = Todo;
+module.exports.Users = Users;
