@@ -4,11 +4,9 @@ import {
   UserOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
-  PoweroffOutlined,
 } from "@ant-design/icons";
-import { Link, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import axios from "axios";
-import secureStorage from "../utils/SecureStorage";
 
 const Register = () => {
   const { cardLogin, container, buttonLogin } = styles;

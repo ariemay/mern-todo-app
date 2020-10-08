@@ -4,14 +4,15 @@ import {
   UserOutlined,
   EyeInvisibleOutlined,
   EyeTwoTone,
-  PoweroffOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import axios from "axios";
 import secureStorage from "../utils/SecureStorage";
 
 const Login = () => {
   const { cardLogin, container, buttonLogin } = styles;
+
+  const history = useHistory();
 
   const [emailAddress, setEmail] = useState();
   const [passwordUser, setPassword] = useState();
@@ -20,7 +21,15 @@ const Login = () => {
   React.useEffect(() => {
     let token = secureStorage.getItem("credentials");
     console.log(token);
+    if (token) {
+      history.push("/dashboard");
+    }
   }, []);
+
+  const storeData = async (res) => {
+    secureStorage.setItem("credentials", res.headers.authorization);
+    secureStorage.setItem("username", res);
+  };
 
   const getLogin = () => {
     setLoading(true);
@@ -35,7 +44,9 @@ const Login = () => {
       )
       .then((res) => {
         setLoading(false);
-        console.log(res);
+        storeData(res).then(() => {
+          history.push("/dashboard");
+        });
       })
       .catch((err) => {
         setLoading(false);
@@ -65,6 +76,7 @@ const Login = () => {
             visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
           }
           onChange={(pass) => setPassword(pass.target.value)}
+          onPressEnter={getLogin}
         />
         <Button
           style={buttonLogin}
